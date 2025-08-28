@@ -1,0 +1,43 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.problem-description {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.jumbotron {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+/* CodeMirror styling */
+.CodeMirror {
+    border: 1px solid #ddd;
+    height: auto;
+    min-height: 300px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.CodeMirror-scroll {
+    min-height: 300px;
+}
+
+/* Test case styling */
+pre {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}

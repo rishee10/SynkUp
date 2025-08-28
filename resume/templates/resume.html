@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .contact {
+            font-size: 14px;
+            margin-top: 8px;
+            color: #555;
+        }
+        .contact a {
+            text-decoration: none;
+            color: #0073b1;
+        }
+
+        /* Sections */
+        section {
+            margin-top: 25px;
+        }
+        section h2 {
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Lists */
+        ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        p {
+            font-size: 14px;
+            margin: 4px 0;
+        }
+        strong {
+            color: #000;
+        }
+
+        /* PDF Button */
+        .btn1 {
+            display: block;
+            margin: 30px auto 0;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #0073b1;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn1:hover {
+            background-color: #005a87;
+        }
+    </style>
+</head>
+<body>
+
+<div id="mn" class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>{{name}}</h1>
+        <div class="contact">
+            {{phone}} | <a href="mailto:{{email}}">{{email}}</a> | 
+            <a href="{{portfolio}}">Portfolio</a> | 
+            <a href="{{linkedin}}">LinkedIn</a> | 
+            <a href="{{github}}">GitHub</a> | 
+            <a href="{{leetcode}}">LeetCode</a>
+        </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <section>
+        <h2>Education</h2>
+        <p><strong>{{college1}}</strong> — {{degree1}} ({{year1}}) | CGPA: {{cgpa1}}</p>
+        <p><strong>{{college2}}</strong> — {{degree2}} ({{year2}}) | Percentage: {{per2}}</p>
+        <p><strong>{{college3}}</strong> — {{degree3}} ({{year3}}) | Percentage: {{per3}}</p>
+    </section>
+
+    <!-- PROJECTS -->
+    <section>
+        <h2>Projects</h2>
+        <p><strong>{{project1}}</strong> | {{tech1}}</p>
+        <ul>
+            <li>{{p1_line1}}</li>
+            <li>{{p1_line2}}</li>
+            <li>{{p1_line3}}</li>
+        </ul>
+        <p><strong>{{project2}}</strong> | {{tech2}}</p>
+        <ul>
+            <li>{{p2_line1}}</li>
+            <li>{{p2_line2}}</li>
+            <li>{{p2_line3}}</li>
+        </ul>
+    </section>
+
+    <!-- EXPERIENCE -->
+    {% if company1 or post1 or duration1 or exp1_line1 or exp1_line2 or exp1_line3 or company2 or post2 or duration2 or exp2_line1 or exp2_line2 or exp2_line3 %}
+<section>
+    <h2>Experience</h2>
+    
+    {% if company1 or post1 or duration1 or exp1_line1 or exp1_line2 or exp1_line3 %}
+    <p><strong>{{company1}}</strong> — {{post1}} ({{duration1}})</p>
+    <ul>
+        {% if exp1_line1 %}<li>{{exp1_line1}}</li>{% endif %}
+        {% if exp1_line2 %}<li>{{exp1_line2}}</li>{% endif %}
+        {% if exp1_line3 %}<li>{{exp1_line3}}</li>{% endif %}
+    </ul>
+    {% endif %}
+
+    {% if company2 or post2 or duration2 or exp2_line1 or exp2_line2 or exp2_line3 %}
+    <p><strong>{{company2}}</strong> — {{post2}} ({{duration2}})</p>
+    <ul>
+        {% if exp2_line1 %}<li>{{exp2_line1}}</li>{% endif %}
+        {% if exp2_line2 %}<li>{{exp2_line2}}</li>{% endif %}
+        {% if exp2_line3 %}<li>{{exp2_line3}}</li>{% endif %}
+    </ul>
+    {% endif %}
+    </section>
+{% endif %}
+
+
+    <!-- ACHIEVEMENTS -->
+    <section>
+        <h2>Achievements</h2>
+        <ul>
+            <li>{{ach1}}</li>
+            <li>{{ach2}}</li>
+            <li>{{ach3}}</li>
+        </ul>
+    </section>
+
+    <!-- TECHNICAL SKILLS -->
+    <section>
+        <h2>Technical Skills</h2>
+        <p><strong>Languages:</strong> {{skills_lang}}</p>
+        <p><strong>Frameworks & Databases:</strong> {{skills_frameworks}}</p>
+        <p><strong>Developer Tools:</strong> {{skills_tools}}</p>
+        <p><strong>Others:</strong> {{skills_others}}</p>
+    </section>
+</div>
+
+<!-- PDF Download Button -->
+<button onclick="generatePDF('mn')" type="button" class="btn1">Download PDF</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script>
+    function generatePDF(containerId) {
+        const container = document.getElementById(containerId);
+        const pdfOptions = {
+            margin: 10,
+            filename: 'resume.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(container).set(pdfOptions).save();
+    }
+</script>
+
+</body>
+</html>

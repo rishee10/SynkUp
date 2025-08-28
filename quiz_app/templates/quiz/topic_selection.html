@@ -1,0 +1,19 @@
+
+
+{% extends "quiz/base1.html" %}
+
+
+
+{% block content %}
+<h1>Select a Topic</h1>
+<div class="topics">
+    {% for topic in topics %}
+    <div class="topic-card">
+        <h2>{{ topic.name }}</h2>
+        <p>{{ topic.description|default:"No description"|truncatewords:15 }}</p>
+        <a href="{% url 'quiz_app:start_quiz' topic.id %}" class="btn">Start Quiz</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

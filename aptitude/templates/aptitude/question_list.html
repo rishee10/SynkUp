@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ topic.name }} - Questions{% endblock %}
+
+{% block content %}
+<h1>{{ topic.name }} - Questions</h1>
+
+<style>
+    .option { cursor: pointer; padding: 5px; border: 1px solid #ccc; margin-bottom: 5px; border-radius: 5px; }
+    .correct { background-color: #c8e6c9; }
+    .wrong { background-color: #ffcdd2; }
+    .explanation { display: none; margin-top: 5px; color: #555; }
+</style>
+
+{% for question in questions %}
+    <div class="question-block" data-question-id="{{ question.id }}">
+        <p><strong>Q{{ forloop.counter }}. {{ question.text }}</strong></p>
+        {% for option in question.options.all %}
+            <div class="option" data-correct="{{ option.is_correct|yesno:'true,false' }}">
+                {{ option.text }}
+            </div>
+        {% endfor %}
+        <button class="btn btn-primary check-btn mt-2">Check Solution</button>
+        <div class="explanation mt-2">{{ question.explanation }}</div>
+    </div>
+    <hr>
+{% empty %}
+    <p>No questions for this topic.</p>
+{% endfor %}
+
+<script>
+    document.querySelectorAll('.question-block').forEach(block => {
+        let selectedOption = null;
+
+        block.querySelectorAll('.option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                block.querySelectorAll('.option').forEach(o => o.style.border = '1px solid #ccc');
+                opt.style.border = '2px solid blue';
+                selectedOption = opt;
+            });
+        });
+
+        block.querySelector('.check-btn').addEventListener('click', () => {
+            if (!selectedOption) {
+                alert("Please select an option!");
+                return;
+            }
+            let isCorrect = selectedOption.getAttribute('data-correct') === 'true';
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+            }
+            block.querySelector('.explanation').style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

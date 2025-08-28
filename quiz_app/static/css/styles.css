@@ -1,0 +1,356 @@
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Topic Selection */
+.topics {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.topic-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.topic-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Quiz Styles */
+.quiz-container {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.timer {
+    color: #e74c3c;
+}
+
+.question {
+    margin-bottom: 20px;
+}
+
+.question h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 150px;
+    margin-bottom: 15px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: #2980b9;
+}
+
+.btn.secondary {
+    background: #95a5a6;
+}
+
+.btn.secondary:hover {
+    background: #7f8c8d;
+}
+
+/* Results */
+.result-container {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.score-box {
+    margin: 25px 0;
+    font-size: 1.2em;
+}
+
+.score {
+    font-size: 2em;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.actions {
+    margin-top: 30px;
+}
+
+/* Feedback */
+.feedback-container {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.answer-item {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.user-answer, .ideal-answer {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.feedback {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f0f7ff;
+    border-radius: 5px;
+}
+
+.similarity {
+    font-weight: bold;
+    color: #3498db;
+    margin-top: 10px;
+}
+
+/* Add to your styles.css */
+/* Timer styles */
+.timer {
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #2ecc71; /* Green by default */
+}
+
+.timer.warning {
+    color: #f39c12; /* Orange when time is low */
+    animation: pulse 1s infinite;
+}
+
+.timer.expired {
+    color: #e74c3c; /* Red when expired */
+    animation: blink 0.5s infinite alternate;
+}
+
+/* Disabled state */
+textarea:disabled {
+    background-color: #f8f9fa;
+    border-color: #e74c3c;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
+}
+
+/* Add to your styles.css */
+.result-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.score-display {
+    font-size: 1.2rem;
+    margin: 20px 0;
+}
+
+.score {
+    font-size: 2rem;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.answer-item {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.question-text {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.user-answer, .feedback {
+    background: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.timed-out {
+    color: #e74c3c;
+    font-style: italic;
+}
+
+/* Timer styles */
+.timer {
+    font-weight: bold;
+    color: #2ecc71;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.timer.warning {
+    color: #f39c12;
+    animation: pulse 1s infinite;
+}
+
+.timer.expired {
+    color: #e74c3c;
+    animation: blink 0.5s infinite alternate;
+}
+
+/* Quiz container */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Results styles */
+.result-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.score-display {
+    font-size: 1.5rem;
+    margin: 20px 0;
+}
+
+.score {
+    font-size: 2.5rem;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.answer-item {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.timed-out {
+    color: #e74c3c;
+    font-style: italic;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
+}
+
+/* Add to your styles.css */
+.timer {
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #2ecc71;
+}
+
+.timer.warning {
+    color: #f39c12;
+    animation: pulse 1s infinite;
+}
+
+.timer.expired {
+    color: #e74c3c;
+    animation: blink 0.5s infinite alternate;
+}
+
+button[disabled] {
+    background-color: #95a5a6 !important;
+    cursor: not-allowed;
+}
+
+textarea[disabled] {
+    background-color: #f8f9fa;
+    border-color: #e74c3c;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
+}

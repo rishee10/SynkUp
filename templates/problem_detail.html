@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ problem.title }}</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <p class="card-text">{{ problem.description|linebreaks }}</p>
+        </div>
+    </div>
+
+    <!-- Display messages (success/error) -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Code Editor</h4>
+                    <div>
+                        <button id="format-btn" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="bi bi-braces"></i> Format Code
+                        </button>
+                        <button id="hint-btn" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-lightbulb"></i> Get Hint
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="code-form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea id="code-editor" name="code" style="width: 600px; height: 500px;">{{ problem.template_code }}</textarea>
+                        </div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <select name="language" class="form-select" id="language-select">
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="cpp">C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" id="run-btn" class="btn btn-outline-success me-2">
+                                        <i class="bi bi-play-fill"></i> Run Code
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send-fill"></i> Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Submission History Section -->
+            {% if submissions %}
+            <div class="card">
+                <div class="card-header">
+                    <h4>Your Submissions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Language</th>
+                                    <th>Verdict</th>
+                                    <th>Code</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in submissions %}
+                                <tr>
+                                    <td>{{ submission.submission_time|timesince }} ago</td>
+                                    <td>{{ submission.get_language_display }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if submission.verdict == 'Accepted' %}success{% else %}danger{% endif %}">
+                                            {{ submission.verdict }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#code-{{ submission.id }}">
+                                            View Code
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="p-0">
+                                        <div class="collapse" id="code-{{ submission.id }}">
+                                            <div class="card card-body bg-light">
+                                                <pre class="mb-0"><code class="language-{{ submission.language }}">{{ submission.code }}</code></pre>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Example Test Cases</h4>
+                </div>
+                <div class="card-body">
+                    {% for test_case in test_cases %}
+                    <div class="mb-3">
+                        <h6>Example {{ forloop.counter }}</h6>
+                        <p><strong>Input:</strong></p>
+                        <pre>{{ test_case.input }}</pre>
+                        <p><strong>Expected Output:</strong></p>
+                        <pre>{{ test_case.expected_output }}</pre>
+                        {% if test_case.explanation %}
+                        <p><strong>Explanation:</strong> {{ test_case.explanation }}</p>
+                        {% endif %}
+                    </div>
+                    <hr>
+                    {% endfor %}
+                    {% if hidden_count %}
+                    <p class="text-muted">+ {{ hidden_count }} hidden test case(s) not shown</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hint Modal -->
+    <div class="modal fade" id="hintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Coding Hint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="hint-content">
+                        {% if problem.hints %}
+                            <h6>Problem: {{ problem.title }}</h6>
+                            <ul class="mt-3">
+                                {% for hint in problem.get_hints_list %}
+                                <li>{{ hint }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No hints available for this problem.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Run Code Modal -->
+    <div class="modal fade" id="runModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Code Execution Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="run-result">
+                        <p>Your code execution results will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+<style>
+    .CodeMirror {
+        border: 1px solid #dee2e6;
+        height: auto;
+        min-height: 300px;
+        font-family: 'Fira Code', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    .CodeMirror-scroll {
+        min-height: 300px;
+    }
+    .cm-s-dracula .CodeMirror-activeline-background {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    #run-btn, #format-btn, #hint-btn {
+        transition: all 0.2s;
+    }
+    #run-btn:hover, #format-btn:hover, #hint-btn:hover {
+        transform: translateY(-2px);
+    }
+    pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #eee;
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/anyword-hint.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize CodeMirror with advanced features
+    const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+        lineNumbers: true,
+        mode: 'python',
+        theme: 'dracula',
+        indentUnit: 4,
+        tabSize: 4,
+        lineWrapping: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        extraKeys: {
+            "Ctrl-Space": "autocomplete",
+            "Ctrl-/": "toggleComment",
+            "Tab": "indentMore",
+            "Shift-Tab": "indentLess",
+            "Ctrl-Enter": runCode,
+            "Ctrl-F": formatCode
+        }
+    });
+
+    // Language mode switching
+    const languageSelect = document.getElementById('language-select');
+    languageSelect.addEventListener('change', function() {
+        const mode = {
+            'python': 'python',
+            'java': 'text/x-java',
+            'cpp': 'text/x-c++src',
+            'javascript': 'javascript'
+        }[this.value];
+        editor.setOption('mode', mode);
+    });
+
+    // Format code button
+    document.getElementById('format-btn').addEventListener('click', formatCode);
+    
+    // Run code button
+    document.getElementById('run-btn').addEventListener('click', runCode);
+    
+    // Hint button
+    document.getElementById('hint-btn').addEventListener('click', showHint);
+
+    function formatCode() {
+        const code = editor.getValue();
+        const language = languageSelect.value;
+        
+        try {
+            let formatted;
+            if (language === 'python') {
+                formatted = window.js_beautify(code, {
+                    indent_size: 4,
+                    indent_char: ' ',
+                    max_preserve_newlines: 2,
+                    preserve_newlines: true,
+                    indent_scripts: 'normal',
+                    brace_style: 'collapse,preserve-inline',
+                    space_before_conditional: true,
+                    unindent_chained_methods: true,
+                    break_chained_methods: false,
+                    keep_array_indentation: false,
+                    keep_function_indentation: false,
+                    space_in_paren: false,
+                    space_in_empty_paren: false,
+                    jslint_happy: false,
+                    end_with_newline: true,
+                    wrap_line_length: 0,
+                    indent_empty_lines: false
+                });
+            } else {
+                formatted = window.js_beautify(code);
+            }
+            
+            editor.setValue(formatted);
+            showTemporaryMessage('Code formatted successfully!', 'success');
+        } catch (error) {
+            showTemporaryMessage('Formatting error: ' + error.message, 'danger');
+        }
+    }
+
+    function runCode() {
+        const runModal = new bootstrap.Modal(document.getElementById('runModal'));
+        const runResult = document.getElementById('run-result');
+        
+        // Simulate API call (replace with actual API call in production)
+        runResult.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Running your code...</p>
+            </div>
+        `;
+        
+        runModal.show();
+        
+        // Simulate API response after delay
+        setTimeout(() => {
+            const testCases = [
+                {input: "2, 3", output: "5", passed: true},
+                {input: "-1, 1", output: "0", passed: true},
+                {input: "0, 0", output: "0", passed: true}
+            ];
+            
+            let resultHTML = '<h6>Test Results</h6>';
+            testCases.forEach((testCase, index) => {
+                resultHTML += `
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>Test Case ${index + 1}:</strong>
+                        <span class="badge bg-${testCase.passed ? 'success' : 'danger'}">
+                            ${testCase.passed ? 'Passed' : 'Failed'}
+                        </span>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-md-6">
+                            <small>Input:</small>
+                            <pre class="mb-1">${testCase.input}</pre>
+                        </div>
+                        <div class="col-md-6">
+                            <small>Output:</small>
+                            <pre class="mb-1">${testCase.output}</pre>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            resultHTML += `
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle"></i> All test cases passed!
+            </div>
+            `;
+            
+            runResult.innerHTML = resultHTML;
+        }, 1500);
+    }
+
+    function showHint() {
+        const hintModal = new bootstrap.Modal(document.getElementById('hintModal'));
+        hintModal.show();
+    }
+
+    function showTemporaryMessage(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.style.position = 'fixed';
+        alert.style.bottom = '20px';
+        alert.style.right = '20px';
+        alert.style.zIndex = '1000';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alert);
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+
+    // Auto-resize editor
+    function resizeEditor() {
+        editor.setSize(null, Math.max(300, window.innerHeight - 400));
+    }
+    window.addEventListener('resize', resizeEditor);
+    resizeEditor();
+    
+    // Initialize syntax highlighting for submission code
+    document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+});
+</script>
+{% endblock %}

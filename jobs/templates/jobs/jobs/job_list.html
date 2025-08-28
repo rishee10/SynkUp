@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+ 
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm mb-4 sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="bi bi-funnel"></i> Filter Jobs</h5>
+                </div>
+                <div class="card-body">
+                    <form id="job-filters-form" method="get">
+                        <!-- Job Type Filter -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Job Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="job_type" id="all-types" value="" 
+                                       {% if not selected_filters.job_type %}checked{% endif %}>
+                                <label class="form-check-label" for="all-types">All Types</label>
+                            </div>
+                            {% for code, name in job_types %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="job_type" id="{{ code }}"
+                                       value="{{ code }}" {% if selected_filters.job_type == code %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ code }}">{{ name }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Work Mode Filter -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Work Mode</label>
+                            <select name="work_mode" class="form-select">
+                                <option value="">All Modes</option>
+                                {% for code, name in work_modes %}
+                                <option value="{{ code }}" {% if selected_filters.work_mode == code %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Location Filter -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Location</label>
+                            <input type="text" name="location" class="form-control" 
+                                   placeholder="City or Country" value="{{ selected_filters.location }}">
+                        </div>
+
+                        <!-- Skills Filter -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Skills</label>
+                            <input type="text" name="skills" class="form-control" 
+                                   placeholder="Python, Django, etc." value="{{ selected_filters.skills }}">
+                            <div id="skills-help" class="form-text">Separate multiple skills with commas</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-filter"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'job_list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Popular Skills -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="bi bi-tags"></i> Popular Skills</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in popular_skills %}
+                        <a href="?skills={{ skill }}" class="badge bg-light text-dark text-decoration-none">
+                            {{ skill }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs Listing -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-briefcase"></i> Available Jobs
+                            <span class="badge bg-primary ms-2">{{ jobs.count }}</span>
+                        </h4>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                    id="sortDropdown" data-bs-toggle="dropdown">
+                                <i class="bi bi-sort-down"></i> Sort
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="?sort=newest">Newest First</a></li>
+                                <li><a class="dropdown-item" href="?sort=oldest">Oldest First</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if jobs %}
+                    <div class="list-group list-group-flush">
+                        {% for job in jobs %}
+                        <div class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="me-3">
+                                    <h5 class="mb-1">{{ job.title }}</h5>
+                                    <h6 class="text-muted mb-2">
+                                        <i class="bi bi-building"></i> {{ job.company }}
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-geo-alt"></i> {{ job.location }}
+                                    </h6>
+                                </div>
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="badge bg-primary mb-1">{{ job.get_job_type_display }}</span>
+                                    <span class="badge bg-secondary">{{ job.get_work_mode_display }}</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                {% for skill in job.get_skills_list|slice:":5" %}
+                                <span class="badge bg-light text-dark me-1">{{ skill }}</span>
+                                {% endfor %}
+                                {% if job.get_skills_list|length > 5 %}
+                                <span class="badge bg-light text-dark">+{{ job.get_skills_list|length|add:"-5" }}</span>
+                                {% endif %}
+                            </div>
+
+                            <p class="mb-2">{{ job.description|truncatewords:25 }}</p>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> Posted {{ job.posted_at|timesince }} ago
+                                </small>
+                                <div>
+                                    <a href="{{ job.official_link }}" class="btn btn-sm btn-outline-info me-2" 
+                                       target="_blank" data-bs-toggle="tooltip" title="Company Careers Page">
+                                        <i class="bi bi-link-45deg"></i> Careers
+                                    </a>
+                                    <a href="{{ job.application_link }}" class="btn btn-sm btn-primary" 
+                                       target="_blank" data-bs-toggle="tooltip" title="Apply for this position">
+                                        <i class="bi bi-send"></i> Apply Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-emoji-frown display-4 text-muted"></i>
+                        <h3 class="mt-3">No jobs found</h3>
+                        <p class="text-muted">Try adjusting your search filters</p>
+                        <a href="{% url 'job_list' %}" class="btn btn-primary mt-2">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if is_paginated %}
+                <div class="card-footer bg-white">
+                    <nav aria-label="Job pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .list-group-item {
+        transition: all 0.3s ease;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    .sticky-top {
+        z-index: 1;
+    }
+    .badge {
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Persistent filters on sort change
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', this.getAttribute('href').split('=')[1]);
+            window.location.href = url.toString();
+        });
+    });
+});
+</script>
+{% endblock %}

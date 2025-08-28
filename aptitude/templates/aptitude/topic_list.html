@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Aptitude Topics{% endblock %}
+
+{% block content %}
+    <h1>Select a Topic</h1>
+    <ul>
+        {% for topic in topics %}
+            <li><a href="{% url 'question_list' topic.id %}">{{ topic.name }}</a></li>
+        {% empty %}
+            <li>No topics available</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+   
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">{{ job.title }}</h2>
+                    <h4 class="text-muted">
+                        <i class="bi bi-building"></i> {{ job.company }}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-geo-alt"></i> {{ job.location }}
+                    </h4>
+                </div>
+                <div>
+                    <span class="badge bg-primary me-1">{{ job.get_job_type_display }}</span>
+                    <span class="badge bg-secondary">{{ job.get_work_mode_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <h4 class="border-bottom pb-2">
+                            <i class="bi bi-file-text"></i> Job Description
+                        </h4>
+                        <div class="job-description">
+                            {{ job.description|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="border-bottom pb-2">
+                            <i class="bi bi-list-check"></i> Requirements
+                        </h4>
+                        <div class="job-requirements">
+                            {{ job.requirements|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="border-bottom pb-2">
+                            <i class="bi bi-tools"></i> Skills
+                        </h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in job.get_skills_list %}
+                            <span class="badge bg-light text-dark">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-info-circle"></i> Job Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-briefcase me-2"></i>Job Type</span>
+                                    <span class="badge bg-primary">{{ job.get_job_type_display }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-laptop me-2"></i>Work Mode</span>
+                                    <span class="badge bg-secondary">{{ job.get_work_mode_display }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-calendar me-2"></i>Posted</span>
+                                    <span>{{ job.posted_at|date:"M d, Y" }}</span>
+                                </li>
+                                {% if job.salary %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-cash me-2"></i>Salary</span>
+                                    <span>{{ job.salary }}</span>
+                                </li>
+                                {% endif %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-geo-alt me-2"></i>Location</span>
+                                    <span>{{ job.location }}</span>
+                                </li>
+                            </ul>
+
+                            <div class="d-grid gap-2">
+                                <a href="{{ job.application_link }}" class="btn btn-primary" target="_blank">
+                                    <i class="bi bi-send"></i> Apply Now
+                                </a>
+                                <a href="{{ job.official_link }}" class="btn btn-outline-secondary" target="_blank">
+                                    <i class="bi bi-link-45deg"></i> Company Careers Page
+                                </a>
+                                <a href="{% url 'job_list' %}" class="btn btn-outline-dark">
+                                    <i class="bi bi-arrow-left"></i> Back to Jobs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .job-description, .job-requirements {
+        line-height: 1.8;
+    }
+    .job-description ul, .job-requirements ul {
+        padding-left: 20px;
+    }
+    .job-description li, .job-requirements li {
+        margin-bottom: 8px;
+    }
+    .list-group-item {
+        border-left: 0;
+        border-right: 0;
+    }
+</style>
+{% endblock %}
+
+

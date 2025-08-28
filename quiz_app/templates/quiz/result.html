@@ -1,0 +1,48 @@
+
+{% extends "quiz/base1.html" %}
+
+{% block content %}
+<div class="result-container">
+    <h1>Quiz Results</h1>
+    <h2>{{ result.topic.name }}</h2>
+    
+    <div class="score-display">
+        Your Score: <span class="score">{{ result.score|floatformat:1 }}%</span>
+    </div>
+    
+    <div class="answers-list">
+        {% for answer in answers %}
+        <div class="answer-item {% if answer.is_auto_submitted %}timed-out{% endif %}">
+            <h3>Question {{ forloop.counter }}</h3>
+            <p class="question-text">{{ answer.question.text }}</p>
+            
+            <div class="answer-comparison">
+                <div class="user-answer">
+                    <h4>Your Answer:</h4>
+                    {% if answer.is_auto_submitted %}
+                        <p class="timed-out">Time expired - no answer submitted</p>
+                    {% else %}
+                        <p>{{ answer.user_answer }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="admin-answer">
+                    <h4>Expected Answer:</h4>
+                    <p>{{ answer.question.ideal_answer }}</p>
+                </div>
+            </div>
+            
+            {% if not answer.is_auto_submitted %}
+            <div class="feedback">
+                <h4>Feedback:</h4>
+                <p>{{ answer.feedback }}</p>
+                <p class="similarity">Similarity Score: {{ answer.similarity_score|floatformat:2 }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <a href="{% url 'quiz_app:topic_selection' %}" class="btn">Take Another Quiz</a>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+
+
+{% extends "quiz/base1.html" %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timeLimit = {{ time_limit }};
+    let timeLeft = timeLimit;
+    const timerElement = document.getElementById('timer');
+    const questionForm = document.getElementById('answer-form');
+    const answerTextarea = document.querySelector('textarea[name="answer_text"]');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Timer function
+    const timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+        
+        if (timeLeft <= 5) timerElement.classList.add('warning');
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleTimeExpired();
+        }
+    }, 1000);
+
+    function handleTimeExpired() {
+        timerElement.textContent = "TIME'S UP!";
+        timerElement.classList.add('expired');
+        answerTextarea.disabled = true;
+        submitButton.disabled = true;
+        
+        submitAnswer(true);
+    }
+
+    questionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearInterval(timerInterval);
+        submitAnswer(false);
+    });
+
+    function submitAnswer(isAutoSubmitted) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+        
+        fetch("{% url 'quiz_app:save_answer' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                question_id: '{{ question.id }}',
+                answer_text: answerTextarea.value,
+                time_expired: isAutoSubmitted
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = "{% url 'quiz_app:question_view' %}";
+            } else {
+                throw new Error(data.message || 'Submission failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit";
+            if (!isAutoSubmitted) {
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="quiz-header">
+        <span>Question {{ question_number }} of {{ total_questions }}</span>
+        <span class="timer" id="timer">{{ time_limit }}</span>
+    </div>
+    
+    <div class="question-card">
+        <h3>{{ question.text }}</h3>
+        <form id="answer-form">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            <textarea name="answer_text" required {% if time_expired %}disabled{% endif %}></textarea>
+            <button type="submit" {% if time_expired %}disabled{% endif %}>Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

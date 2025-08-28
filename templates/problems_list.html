@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2 class="mb-4">DSA Problems</h2>
+<div class="list-group">
+    {% for problem in problems %}
+    <a href="{% url 'problem_detail' problem.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{ problem.title }}</h5>
+            <small class="text-{{ problem.get_difficulty_color }}">{{ problem.get_difficulty_display }}</small>
+        </div>
+        <p class="mb-1">{{ problem.description|truncatechars:150 }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
