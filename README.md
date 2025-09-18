@@ -1,6 +1,6 @@
 A web application that helps users enhance their skills, solve DSA and aptitude questions, build professional resumes, and explore top job roles effectively. Built using Django and Python.
 
-Features
+**Features**
 
 User Authentication: Users can register, login, and manage their profiles.
 
@@ -12,7 +12,7 @@ Resume Builder: Create and download a professional resume effortlessly.
 
 Job Insights: Explore top job roles available in the market with relevant details.
 
-Tech Stack
+**Tech Stack**
 
 Backend: Django, Python
 
@@ -22,7 +22,7 @@ Database: SQLite (default Django DB, can be upgraded to PostgreSQL)
 
 Other Tools: Django templates, Django ORM
 
-Installation
+**Installation**
 
 Clone the repository
 
@@ -30,16 +30,16 @@ Clone the repository
 
 ```cd SynkUp```
 
-Install dependencies
+**Install dependencies**
 
 ```pip install django```
 
-Apply migrations
+**Apply migrations**
 
 ```python manage.py makemigrations```
 
 ```python manage.py migrate```
 
-Run the development server
+**Run the development server**
 
 ```python manage.py runserver```
